@@ -19,15 +19,9 @@ class PilImage(qrcode.image.base.BaseImage):
         self._idr = ImageDraw.Draw(img)
         return img
 
-    def drawrect(self, row, col):
+    def draw(self, row, col):
         box = self.pixel_box(row, col)
         self._idr.rectangle(box, fill="black")
-
-    def draw_roundrect(self, row, col, round_radius):
-        """
-        Draw a round rectangle of the QR code.
-        """
-
 
     def save(self, stream, kind=None):
         if kind is None:

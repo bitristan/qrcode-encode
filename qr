@@ -4,5 +4,10 @@ import sys
 import qrcode
 
 if __name__ == "__main__":
-    img = qrcode.make('Hello, world\n')
+    #img = qrcode.make('Hello, world\n')
+    img = qrcode.make('Hello, world\n', border=0)
+    #img = qrcode.make('Hello, world\n', is_water=True, radius=10000)
+    #img = qrcode.make('Hello, world\n', is_round=True, radius=10000)
+    #img = qrcode.make('Hello, world\n', is_water=True, radius=10000, fore_color='purple', back_color='white')
+    #img = qrcode.make('Hello, world\n', is_round=True, radius=10000, fore_color='purple', back_color='white')
     img.save('out.png')

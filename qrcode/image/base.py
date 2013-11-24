@@ -5,24 +5,19 @@ class BaseImage(object):
     kind = None
     allowed_kinds = None
 
-    def __init__(self, border, width, box_size, *args, **kwargs):
+    def __init__(self, border, width, box_size, padding, *args, **kwargs):
         self.border = border
         self.width = width
         self.box_size = box_size
+        self.padding = padding
         self.pixel_size = (self.width + self.border*2) * self.box_size
         self._img = self.new_image(**kwargs)
 
-    def drawrect(self, row, col):
+    def draw(self, row, col):
         """
         Draw a single rectangle of the QR code.
         """
         raise NotImplementedError("BaseImage.drawrect")
-
-    def draw_roundrect(self, row, col, round_radius):
-        """
-        Draw a round rectangle of the QR code.
-        """
-        raise NotImplementedError("BaseImage.draw_roundrect")
 
     def save(self, stream, kind=None):
         """
@@ -35,8 +30,8 @@ class BaseImage(object):
         A helper method for pixel-based image generators that specifies the
         four pixel coordinates for a single rect.
         """
-        x = (col + self.border) * self.box_size
-        y = (row + self.border) * self.box_size
+        x = self.padding + col * self.box_size
+        y = self.padding + row * self.box_size
         return [(x, y), (x + self.box_size - 1, y + self.box_size - 1)]
 
     def new_image(self, **kwargs):
