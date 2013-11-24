@@ -1,5 +1,4 @@
 from qrcode import constants, exceptions, util
-from qrcode.image.base import BaseImage
 from PIL import Image, ImageDraw
 
 def make(data=None, **kwargs):
