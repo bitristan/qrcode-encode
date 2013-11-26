@@ -353,27 +353,36 @@ class QRCode:
         if bottom == None:
             return top
 
-        bottom = bottom.resize(top.size)
+        resize_width = self.size - (self.padding << 1)
+        bottom = bottom.resize((resize_width, resize_width))
         bottom = bottom.convert('RGBA')
-        bottom = self.mosaic_image(bottom, 10);
+        bottom = self.mosaic_image(bottom);
 
         l = [None, None, None, None]
         for i in xrange(self.size):
+            if i < self.padding or i > self.size - 1 - self.padding:
+                continue
             for j in xrange(self.size):
+                if j < self.padding or j > self.size - 1 - self.padding:
+                    continue
                 top_color = top.getpixel((i, j))
-                bottom_color = bottom.getpixel((i, j))
-                l[0] = int(math.floor(top_color[0] * 0.8 + bottom_color[0] * 0.2))
-                l[1] = int(math.floor(top_color[1] * 0.8 + bottom_color[1] * 0.2))
-                l[2] = int(math.floor(top_color[2] * 0.8 + bottom_color[2] * 0.2))
-                l[3] = int(math.floor(top_color[3] * 0.8 + bottom_color[3] * 0.2))
+                #print "i = ", i, "j = ", j
+                #print "ii = ", i - resize_padding, "jj = ", j - resize_padding
+                bottom_color = bottom.getpixel((i - self.padding, j - self.padding))
+                l[0] = int(math.floor(top_color[0] * 0.5 + bottom_color[0] * 0.5))
+                l[1] = int(math.floor(top_color[1] * 0.5 + bottom_color[1] * 0.5))
+                l[2] = int(math.floor(top_color[2] * 0.5 + bottom_color[2] * 0.5))
+                l[3] = int(math.floor(top_color[3] * 0.5 + bottom_color[3] * 0.5))
                 top.putpixel((i, j), tuple(l))
         return top
 
-    def mosaic_image(self, image, radius):
+    def mosaic_image(self, image):
+        radius = self.box_size
         result = Image.new(image.mode, image.size)
         width, height = image.size
-        for i in xrange(height / radius):
-            for j in xrange(width / radius):
+
+        for i in xrange(self.modules_count):
+            for j in xrange(self.modules_count):
                 color = image.getpixel((i * radius, j * radius))
                 for m in xrange(radius):
                     for n in xrange(radius):
