@@ -22,7 +22,11 @@ class QRCode:
         self.radius = radius
         self.fore_color = fore_color
         self.back_color = back_color
-        self.back_img = back_img
+        if back_img:
+            self.back_img = Image.open(back_img)
+        else:
+            self.back_img = None
+
         self.clear()
 
     def clear(self):
