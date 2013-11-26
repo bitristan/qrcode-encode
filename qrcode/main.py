@@ -1,5 +1,6 @@
 from qrcode import constants, exceptions, util
 from PIL import Image, ImageDraw
+import math
 
 def make(data=None, **kwargs):
     qr = QRCode(**kwargs)
@@ -9,7 +10,7 @@ def make(data=None, **kwargs):
 class QRCode:
     def __init__(self, version=None,
                  error_correction=constants.ERROR_CORRECT_M,
-                 size=300,border=2,is_water=False,is_round=False,radius=0,fore_color='black',back_color='white'):
+                 size=300,border=2,is_water=False,is_round=False,radius=0,fore_color='black',back_color='white',back_img=None):
         self.version = version and int(version)
         self.error_correction = int(error_correction)
         self.size=int(size)
@@ -21,6 +22,7 @@ class QRCode:
         self.radius = radius
         self.fore_color = fore_color
         self.back_color = back_color
+        self.back_img = back_img
         self.clear()
 
     def clear(self):
@@ -200,7 +202,7 @@ class QRCode:
                             left_bottom = True
 
                         util.draw_round_rectangle(self.idr, self.padding + c * self.box_size, self.padding + r * self.box_size, self.box_size, self.radius, left_top, right_top, right_bottom, left_bottom, self.back_color, self.fore_color)
-        return self.img
+        return self.compose_image(self.img, self.back_img)
 
     def setup_timing_pattern(self):
         for r in range(8, self.modules_count - 8):
@@ -342,3 +344,34 @@ class QRCode:
 
     def save(self, stream):
         self.img.save(stream)
+
+    def compose_image(self, top, bottom):
+        if bottom == None:
+            return top
+
+        bottom = bottom.resize(top.size)
+        bottom = bottom.convert('RGBA')
+        bottom = self.mosaic_image(bottom, 10);
+
+        l = [None, None, None, None]
+        for i in xrange(self.size):
+            for j in xrange(self.size):
+                top_color = top.getpixel((i, j))
+                bottom_color = bottom.getpixel((i, j))
+                l[0] = int(math.floor(top_color[0] * 0.8 + bottom_color[0] * 0.2))
+                l[1] = int(math.floor(top_color[1] * 0.8 + bottom_color[1] * 0.2))
+                l[2] = int(math.floor(top_color[2] * 0.8 + bottom_color[2] * 0.2))
+                l[3] = int(math.floor(top_color[3] * 0.8 + bottom_color[3] * 0.2))
+                top.putpixel((i, j), tuple(l))
+        return top
+
+    def mosaic_image(self, image, radius):
+        result = Image.new(image.mode, image.size)
+        width, height = image.size
+        for i in xrange(height / radius):
+            for j in xrange(width / radius):
+                color = image.getpixel((i * radius, j * radius))
+                for m in xrange(radius):
+                    for n in xrange(radius):
+                        result.putpixel((i * radius + m, j * radius + n), color)
+        return result
