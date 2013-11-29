@@ -11,5 +11,6 @@ if __name__ == "__main__":
     #img = qrcode.make('Hello, world\n', is_round=True, radius=10000)
     #img = qrcode.make('Hello, world\n', is_water=True, radius=10000, fore_color='purple', back_color='white')
     #img = qrcode.make('Hello, world\n', is_round=True, radius=10000, fore_color='purple', back_color='white')
-    img = qrcode.make('Hello, world\n', is_water=True, radius=10000, fore_color='black', back_color='white', back_img='/Users/robert/Desktop/test/000.jpg')
+    img = qrcode.make('Hello, worldsdfafsad;faskd;fjskdajfa;sjfsajf;asjfasjf;ajfsfsjfiuwerpuwruwqperwernweqnr;wenr;qwr;qwrkwqjr;qjrqjr\n', back_img='hybrid.jpg')
+    #img = qrcode.make('Hello, world\n', back_img='000.jpg')
     img.save('out.png')

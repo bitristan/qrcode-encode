@@ -9,7 +9,7 @@ def make(data=None, **kwargs):
 
 class QRCode:
     def __init__(self, version=None,
-                 error_correction=constants.ERROR_CORRECT_M,
+                 error_correction=constants.ERROR_CORRECT_H,
                  size=300,border=2,is_water=False,is_round=False,radius=0,fore_color='black',back_color='white',back_img=None):
         self.version = version and int(version)
         self.error_correction = int(error_correction)
@@ -356,7 +356,11 @@ class QRCode:
         resize_width = self.size - (self.padding << 1)
         bottom = bottom.resize((resize_width, resize_width))
         bottom = bottom.convert('RGBA')
-        bottom = self.mosaic_image(bottom);
+        #bottom = self.mosaic_image(bottom);
+        bottom.save('test.jpg')
+
+        bottom_coefficient = 0.8
+        coefficient = 0.4
 
         l = [None, None, None, None]
         for i in xrange(self.size):
@@ -369,10 +373,20 @@ class QRCode:
                 #print "i = ", i, "j = ", j
                 #print "ii = ", i - resize_padding, "jj = ", j - resize_padding
                 bottom_color = bottom.getpixel((i - self.padding, j - self.padding))
-                l[0] = int(math.floor(top_color[0] * 0.5 + bottom_color[0] * 0.5))
-                l[1] = int(math.floor(top_color[1] * 0.5 + bottom_color[1] * 0.5))
-                l[2] = int(math.floor(top_color[2] * 0.5 + bottom_color[2] * 0.5))
-                l[3] = int(math.floor(top_color[3] * 0.5 + bottom_color[3] * 0.5))
+                #l[0] = int(math.floor(top_color[0] * 0.5 + bottom_color[0] * 0.5))
+                #l[1] = int(math.floor(top_color[1] * 0.5 + bottom_color[1] * 0.5))
+                #l[2] = int(math.floor(top_color[2] * 0.5 + bottom_color[2] * 0.5))
+                #l[3] = int(math.floor(top_color[3] * 0.5 + bottom_color[3] * 0.5))
+                if top_color[0] == 0:
+                    l[0] = int(bottom_color[0] * bottom_coefficient)
+                    l[1] = int(bottom_color[1] * bottom_coefficient)
+                    l[2] = int(bottom_color[2] * bottom_coefficient)
+                    l[3] = int(bottom_color[3] * bottom_coefficient)
+                else:
+                    l[0] = int(math.floor(top_color[0] * (1 - coefficient) + bottom_color[0] * coefficient))
+                    l[1] = int(math.floor(top_color[1] * (1 - coefficient) + bottom_color[1] * coefficient))
+                    l[2] = int(math.floor(top_color[2] * (1 - coefficient) + bottom_color[2] * coefficient))
+                    l[3] = int(math.floor(top_color[3] * (1 - coefficient) + bottom_color[3] * coefficient))
                 top.putpixel((i, j), tuple(l))
         return top
 
