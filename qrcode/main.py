@@ -10,7 +10,7 @@ def make(data=None, **kwargs):
 class QRCode:
     def __init__(self, version=None,
                  error_correction=constants.ERROR_CORRECT_H,
-                 size=300,border=2,is_water=False,is_round=False,radius=0,fore_color='black',back_color='white',back_img=None):
+                 size=300,border=2,is_water=False,is_round=False,radius=0,fore_color='black',back_color='white',back_img=None,effect=None):
         self.version = version and int(version)
         self.error_correction = int(error_correction)
         self.size=int(size)
@@ -26,6 +26,7 @@ class QRCode:
             self.back_img = Image.open(back_img)
         else:
             self.back_img = None
+        self.effect=effect
 
         self.clear()
 
@@ -168,44 +169,70 @@ class QRCode:
 
         for r in range(self.modules_count):
             for c in range(self.modules_count):
-                if self.modules[r][c]:
-                    left_top = False
-                    left_bottom = False
-                    right_top = False
-                    right_bottom = False
+                if self.effect == 'square':
+                    if self.modules[r][c] == 1:
+                        index = [0, 0]
+                        for i in xrange(self.box_size / 2 + 1):
+                            h = 1 if (i == 0 or (self.box_size % 2 == 0 and i == self.box_size / 2)) else 2
+                            for j in xrange(self.box_size / 2 + 1):
+                                w = 1 if (j == 0 or (self.box_size % 2 == 0 and j == self.box_size / 2)) else 2
 
-                    if self.is_water:
-                        if (not self.isset(r, c - 1)) and (not self.isset(r - 1, c - 1)) and (not self.isset(r - 1, c)):
-                            left_top = True
-                        if (not self.isset(r - 1, c)) and (not self.isset(r - 1, c + 1)) and (not self.isset(r, c + 1)):
-                            right_top = True
-                        if (not self.isset(r, c + 1)) and (not self.isset(r + 1, c + 1)) and (not self.isset(r + 1, c)):
-                            right_bottom = True
-                        if (not self.isset(r, c - 1)) and (not self.isset(r + 1, c - 1)) and (not self.isset(r + 1, c)):
-                            left_bottom = True
-                    elif self.is_round:
-                        left_top = True
-                        left_bottom = True
-                        right_top = True
-                        right_bottom = True
-                    util.draw_round_rectangle(self.idr, self.padding + c * self.box_size, self.padding + r * self.box_size, self.box_size, self.radius, left_top, right_top, right_bottom, left_bottom, self.fore_color, self.back_color)
+                                box = (self.padding + c * self.box_size + index[0], self.padding + r * self.box_size + index[1], self.padding + c * self.box_size + index[0] + w - 1, self.padding + r * self.box_size + index[1] + h - 1)
+                                self.idr.rectangle(box, fill=(0, 0, 0, 255) if (j % 2 == i % 2) else (0, 0, 0, 0))
+                                index[0] += w
+                            index[0] = 0
+                            index[1] += h
+                    else:
+                        index = [0, 0]
+                        for i in xrange(self.box_size / 2 + 1):
+                            h = 1 if (i == 0 or (self.box_size % 2 == 0 and i == self.box_size / 2)) else 2
+                            for j in xrange(self.box_size / 2 + 1):
+                                w = 1 if (j == 0 or (self.box_size % 2 == 0 and j == self.box_size / 2)) else 2
+
+                                box = (self.padding + c * self.box_size + index[0], self.padding + r * self.box_size + index[1], self.padding + c * self.box_size + index[0] + w - 1, self.padding + r * self.box_size + index[1] + h - 1)
+                                self.idr.rectangle(box, fill=(255, 255, 255, 255) if (j % 2 == i % 2) else (0, 0, 0, 0))
+                                index[0] += w
+                            index[0] = 0
+                            index[1] += h
                 else:
-                    if self.is_water:
+                    if self.modules[r][c]:
                         left_top = False
                         left_bottom = False
                         right_top = False
                         right_bottom = False
 
-                        if self.isset(r, c - 1) and self.isset(r - 1, c):
+                        if self.is_water:
+                            if (not self.isset(r, c - 1)) and (not self.isset(r - 1, c - 1)) and (not self.isset(r - 1, c)):
+                                left_top = True
+                            if (not self.isset(r - 1, c)) and (not self.isset(r - 1, c + 1)) and (not self.isset(r, c + 1)):
+                                right_top = True
+                            if (not self.isset(r, c + 1)) and (not self.isset(r + 1, c + 1)) and (not self.isset(r + 1, c)):
+                                right_bottom = True
+                            if (not self.isset(r, c - 1)) and (not self.isset(r + 1, c - 1)) and (not self.isset(r + 1, c)):
+                                left_bottom = True
+                        elif self.is_round:
                             left_top = True
-                        if self.isset(r, c + 1) and self.isset(r - 1, c):
-                            right_top = True
-                        if self.isset(r, c + 1) and self.isset(r + 1, c):
-                            right_bottom = True
-                        if self.isset(r, c - 1) and self.isset(r + 1, c):
                             left_bottom = True
+                            right_top = True
+                            right_bottom = True
+                        util.draw_round_rectangle(self.idr, self.padding + c * self.box_size, self.padding + r * self.box_size, self.box_size, self.radius, left_top, right_top, right_bottom, left_bottom, self.fore_color, self.back_color)
+                    else:
+                        if self.is_water:
+                            left_top = False
+                            left_bottom = False
+                            right_top = False
+                            right_bottom = False
 
-                        util.draw_round_rectangle(self.idr, self.padding + c * self.box_size, self.padding + r * self.box_size, self.box_size, self.radius, left_top, right_top, right_bottom, left_bottom, self.back_color, self.fore_color)
+                            if self.isset(r, c - 1) and self.isset(r - 1, c):
+                                left_top = True
+                            if self.isset(r, c + 1) and self.isset(r - 1, c):
+                                right_top = True
+                            if self.isset(r, c + 1) and self.isset(r + 1, c):
+                                right_bottom = True
+                            if self.isset(r, c - 1) and self.isset(r + 1, c):
+                                left_bottom = True
+
+                            util.draw_round_rectangle(self.idr, self.padding + c * self.box_size, self.padding + r * self.box_size, self.box_size, self.radius, left_top, right_top, right_bottom, left_bottom, self.back_color, self.fore_color)
         return self.compose_image(self.img, self.back_img)
 
     def setup_timing_pattern(self):
@@ -350,6 +377,37 @@ class QRCode:
         self.img.save(stream)
 
     def compose_image(self, top, bottom):
+        if self.effect == 'square':
+            return self.square_compose(top, bottom);
+        else:
+            return self.simple_compose(top, bottom);
+
+    def square_compose(self, top, bottom):
+        if bottom == None:
+            return top
+
+        resize_width = self.size - (self.padding << 1)
+        bottom = bottom.resize((resize_width, resize_width))
+        bottom = bottom.convert('RGBA')
+
+        l = [None, None, None, None]
+        for i in xrange(self.size):
+            if i < self.padding or i > self.size - 1 - self.padding:
+                continue
+            for j in xrange(self.size):
+                if j < self.padding or j > self.size - 1 - self.padding:
+                    continue
+                top_color = top.getpixel((i, j))
+                bottom_color = bottom.getpixel((i - self.padding, j - self.padding))
+
+                if top_color[3] == 0:
+                    l = bottom_color
+                else:
+                    l = top_color
+                top.putpixel((i, j), tuple(l))
+        return top
+
+    def simple_compose(self, top, bottom):
         if bottom == None:
             return top
 
