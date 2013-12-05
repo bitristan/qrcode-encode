@@ -167,6 +167,9 @@ class QRCode:
         self.img = Image.new("RGBA", (self.size, self.size), self.back_color)
         self.idr = ImageDraw.Draw(self.img)
 
+        if self.effect == 'angry_bird':
+            return self.make_angry_bird()
+
         for r in range(self.modules_count):
             for c in range(self.modules_count):
                 if self.effect == 'square':
@@ -460,3 +463,64 @@ class QRCode:
                     for n in xrange(radius):
                         result.putpixel((i * radius + m, j * radius + n), color)
         return result
+
+    def is_finder_patter(self, row, col):
+        if row >= 0 and row <= 6 and col >= 0 and col <= 6:
+            return True
+        if col >= self.modules_count - 7 and col <= self.modules_count - 1 and row >= 0 and row <= 6:
+            return True
+        if row >= self.modules_count - 7 and row <= self.modules_count - 1 and col >= 0 and col <= 6:
+            return True
+        return False
+
+    def open_image_resource(self, path):
+        img = Image.open(path)
+        img = img.convert('RGBA')
+        return img
+
+    def make_angry_bird(self):
+        bird = self.open_image_resource('res/bird.jpg')
+        bar1 = self.open_image_resource('res/bar1.jpg')
+        hbar2 = self.open_image_resource('res/hbar2.jpg')
+        vbar2 = self.open_image_resource('res/vbar2.jpg')
+        finder = self.open_image_resource('res/finder.jpg')
+        bird = bird.resize([2 * self.box_size, 2 * self.box_size])
+        bar1 = bar1.resize([self.box_size, self.box_size])
+        hbar2 = hbar2.resize([2 * self.box_size, self.box_size])
+        vbar2 = vbar2.resize([self.box_size, 2 * self.box_size])
+        finder = finder.resize([7 * self.box_size, 7 * self.box_size])
+
+        self.img.paste(finder, (self.padding, self.padding))
+        self.img.paste(finder, ((self.modules_count - 7) * self.box_size + self.padding, self.padding))
+        self.img.paste(finder, (self.padding, (self.modules_count - 7) * self.box_size + self.padding))
+
+        is_drawn = [[False for i in xrange(self.modules_count)] for j in xrange(self.modules_count)]
+
+        for r in xrange(self.modules_count):
+            for c in xrange(self.modules_count):
+                if self.is_finder_patter(r, c):
+                    continue
+
+                if self.modules[c][r] == 1:
+                    if is_drawn[c][r]:
+                        continue
+
+                    box = (self.padding + c * self.box_size, self.padding + r * self.box_size)
+                    if self.isset(c + 1, r) and self.isset(c + 1, r + 1) and self.isset(c, r + 1) and not is_drawn[c + 1][r + 1] and not is_drawn[c + 1][r] and not is_drawn[c][r + 1]:
+                        self.img.paste(bird, box)
+
+                        is_drawn[c + 1][r] = True
+                        is_drawn[c + 1][r + 1] = True
+                        is_drawn[c][r + 1] = True
+                    elif self.isset(c, r + 1) and not is_drawn[c][r + 1]:
+                        self.img.paste(vbar2, box)
+                        is_drawn[c][r + 1] = True
+                    elif self.isset(c + 1, r) and not is_drawn[c + 1][r]:
+                        self.img.paste(hbar2, box)
+                        is_drawn[c + 1][r] = True
+                    else:
+                        self.img.paste(bar1, box)
+
+                    is_drawn[c][r] = True
+
+        return self.img
