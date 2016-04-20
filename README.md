@@ -25,5 +25,22 @@ qrcode-encode
      back_img:二维码背景图片,类型为一个PIL的Image对象
      effect:二维码背景合成的效果，使用此参数back_img不能为空，目前支持'angry_bird','square',None三种效果，其中'angry_bird'需要使用res目录下面的资源图片
 
-4.调用示例可参见一下qr文件
+4.调用示例可参见一下[qr文件](https://github.com/Tinker-S/qrcode-encode/blob/master/qr)
 
+5.效果如下所列
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/1.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/2.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/3.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/4.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/5.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/6.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/7.png"/>
+  
+  <img src="https://github.com/Tinker-S/qrcode-encode/blob/master/result/angrybird.png"/>
